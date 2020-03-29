@@ -16,11 +16,17 @@ mysql = MySQL(app)
 
 app.config['SECRET_KEY'] = os.urandom(24)
 
-
-
 @app.route('/')
 def index():
-    return render_template('index.html')
+    cur = mysql.connection.cursor()
+    resultValue = cur.execute("SELECT * FROM news")
+    if resultValue > 0:
+        news = cur.fetchall()
+        cur.close()
+        return render_template('index.html', news=news)
+    cur.close()
+    return render_template('index.html', news=None)
+
 @app.route('/about/')
 def about():
     return render_template('about.html')
@@ -57,6 +63,14 @@ def write_news():
         flash("Successfully posted new blog", 'success')
         return redirect('/my_news')
     return render_template('write_news.html')
+@app.route('/my_news/<int:id>/')
+def delete_blog(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM news WHERE news_id = {}".format(id))
+    mysql.connection.commit()
+    flash("Your news has been deleted", 'success')
+    return redirect('/my_news')
+
 @app.route('/login/',methods=['GET','POST'])
 def login():
     if request.method =='POST':
@@ -98,6 +112,24 @@ def register():
         flash('Registration successful! Please login.','success')
         return redirect('/login')
     return render_template('register.html')
+@app.route('/edit-news/<int:id>/', methods=['GET', 'POST'])
+def edit_news(id):
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+        title = request.form['title']
+        body = request.form['body']
+        cur.execute("UPDATE news SET title = %s, body = %s where news_id = %s",(title, body, id))
+        mysql.connection.commit()
+        cur.close()
+        flash('News updated successfully', 'success')
+        return redirect('/my_news')
+    return render_template('edit-news.html')
+@app.route('/logout/')
+def logout():
+    session.clear()
+    flash("You have been logged out", 'info')
+    return redirect('/login')
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

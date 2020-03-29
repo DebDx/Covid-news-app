@@ -37,7 +37,7 @@
             {% for my_new in my_news %}
                   <tr>
                     <td scope="row"><h3> <a href="/news/{{ my_new['news_id'] }}">{{my_new['title']}} </a> </h3></td>
-                    <td><a href="/edit-news/{{ my_new['news_id'] }}" class="btn btn-primary float-right">Edit</a>  <a href="/delete-news/{{ my_new['news_id'] }}" class="btn btn-danger float-right">Delete</a></td>
+                    <td><a href="/edit-news/{{ my_new['news_id'] }}" class="btn btn-primary float-right">Edit</a>  <a href="/my_news/{{ my_new['news_id'] }}" class="btn btn-danger float-right">Delete</a></td>
                    </tr>
                 {% endfor %}
                 </tbody>
